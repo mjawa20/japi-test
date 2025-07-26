@@ -1,210 +1,180 @@
 # Japi AI Tutor Backend
 
-A FastAPI-based backend for Japi's AI Tutor, providing a personalized English learning experience through conversational AI.
+A FastAPI-based backend service for Japi's AI-powered English Tutor. It provides conversational onboarding, learning goal setup, and personalized language learning via OpenAI's GPT models.
+
+---
 
 ## 🏗️ Architecture Overview
 
-Japi AI Tutor Backend follows a modular, feature-based architecture with clear separation of concerns:
+Japi AI Tutor follows a clean, modular, and scalable architecture:
 
-### Core Components
+### Layered Breakdown
 
-1. **API Layer** (FastAPI)
-   - RESTful endpoints with OpenAPI documentation
-   - Request/response validation using Pydantic models
-   - JWT-based authentication
+```
+┌────────────────────────────┐
+│        Presentation        │
+│  - FastAPI Endpoints       │
+│  - Request/Response Models │
+└────────────────────────────┘
+           │
+           ▼
+┌────────────────────────────┐
+│         Services           │
+│  - Business Logic          │
+│  - Use Cases               │
+│  - AI Prompt Management    │
+└────────────────────────────┘
+           │
+           ▼
+┌────────────────────────────┐
+│        Repository          │
+│  - SQLAlchemy ORM          │
+│  - Data Persistence        │
+└────────────────────────────┘
+           │
+           ▼
+┌────────────────────────────┐
+│        Infrastructure      │
+│  - Auth / JWT              │
+│  - OpenAI GPT API          │
+│  - DB Session / Migrations │
+└────────────────────────────┘
+```
 
-2. **Service Layer**
-   - Business logic and use cases
-   - Handles data validation and processing
-   - Manages transactions and error handling
+- **Separation of Concerns**: Each layer is responsible for a single purpose.
+- **Feature Modules**: All features (e.g., `users`, `chats`) are isolated into folders with their own routes, services, models, and schemas.
+- **Dependency Injection**: Via FastAPI's `Depends`.
+- **Database Access**: Encapsulated using repository pattern with SQLAlchemy.
+- **LLM Integration**: Managed within `infrastructure/ai_service.py`.
 
-3. **Data Layer**
-   - SQLAlchemy ORM for database operations
-   - Repository pattern for data access
-   - Automatic database migrations
-
-4. **AI Integration**
-   - OpenAI GPT for natural language processing
-   - Onboarding conversation flow management
-   - Response validation and processing
-
-### Key Design Patterns
-- **Dependency Injection**: For better testability and loose coupling
-- **Repository Pattern**: Abstracts data access logic
-- **Service Layer**: Encapsulates business logic
-- **Modular Design**: Features separated into independent modules
+---
 
 ## 🚀 Features
 
-- **User Authentication** - Secure JWT-based authentication system
-- **AI-Powered Chat** - Integration with OpenAI's GPT for natural conversations
-- **Onboarding Flow** - Step-by-step setup for new users
-- **Conversation History** - Track and retrieve chat history
-- **Learning Progress** - Monitor user progress and learning goals
-- **RESTful API** - Clean, well-documented endpoints with OpenAPI support
+- 🔐 **Authentication** (JWT-based)
+- 💬 **AI Chat Onboarding**
+- 📈 **Learning Progress Tracking**
+- 📜 **Conversation History**
+- 📚 **REST API with OpenAPI Docs**
+
+---
 
 ## 🛠 Tech Stack
 
-- **Backend**: Python 3.8+ with FastAPI
-- **Database**: PostgreSQL with SQLAlchemy ORM
-- **Authentication**: JWT (JSON Web Tokens)
-- **AI**: OpenAI GPT Integration
-- **API Documentation**: Swagger UI and ReDoc
-- **Containerization**: Docker (optional)
+- **Framework**: FastAPI
+- **Language**: Python 3.8+
+- **Database**: PostgreSQL (via SQLAlchemy)
+- **AI**: OpenAI GPT
+- **Docs**: Swagger & ReDoc
+- **Auth**: JWT
+- **Deployment**: Docker
+
+---
 
 ## 📦 Prerequisites
 
-- Python 3.8 or higher
-- PostgreSQL database
-- OpenAI API key
-- pip (Python package manager)
+- Python 3.8+
+- PostgreSQL
+- OpenAI API Key
 
-## 🚀 Quick Start
+---
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/japi-backend.git
-   cd japi-backend
-   ```
+## 🧪 Quick Start
 
-2. **Set up virtual environment**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+```bash
+# 1. Clone Repo
+git clone https://github.com/yourusername/japi-backend.git
+cd japi-backend
 
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
+# 2. Create virtual environment
+python -m venv venv
+source venv/bin/activate  # or venv\Scripts\activate on Windows
 
-4. **Configure environment variables**
-   Create a `.env` file in the root directory:
-   ```env
-   # Database
-   DATABASE_URL=postgresql://postgres:postgres@localhost:5432/japi_db
-   
-   # Authentication
-   SECRET_KEY=your-secret-key-here
-   ALGORITHM=HS256
-   ACCESS_TOKEN_EXPIRE_MINUTES=1440
-   
-   # OpenAI
-   OPENAI_API_KEY=your-openai-api-key
-   ```
+# 3. Install dependencies
+pip install -r requirements.txt
 
-5. **Run the application**
-   ```bash
-   uvicorn app.main:app --reload
-   ```
+# 4. Create `.env` file
+cp .env.example .env
+```
 
-6. **Access the API documentation**
-   - Swagger UI: http://localhost:8000/docs
-   - ReDoc: http://localhost:8000/redoc
+Edit `.env`:
+```env
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/japi_db
+SECRET_KEY=your-secret
+OPENAI_API_KEY=your-openai-key
+```
+
+```bash
+# 5. Run server
+uvicorn app.main:app --reload
+```
+
+---
 
 ## 📚 API Endpoints
 
-### Authentication
-- `POST /users/signup` - Register a new user
-- `POST /users/login` - Authenticate and get access token
-- `GET /users/me` - Get current user details
+### 🔐 Authentication
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/users/signup` | POST | Register new user |
+| `/users/login` | POST | Authenticate user |
+| `/users/me` | GET | Get current user info |
 
-### Chat
-- `POST /chats/` - Send a message (starts onboarding for new users)
-- `GET /chats/` - Get chat history
-- `DELETE /chats/` - Clear chat history
+### 💬 Chat
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/chats/` | POST | Send message |
+| `/chats/` | GET | Get chat history |
+| `/chats/` | DELETE | Clear chat history |
+
+---
 
 ## 🧩 Project Structure
 
 ```
 japi-backend/
-│
-├── app/                     # App logic base folder
-│   ├── config/              # App configuration (e.g., env, settings)
-│   ├── infrastructure/      # Shared low-level services
-│   │   ├── ai_service.py
-│   │   ├── auth.py
-│   │   ├── database.py
-│   │   └── init_db.py
-│   ├── modules/             # Feature-based modules
-│   │   ├── chats/
-│   │   │   ├── models.py
-│   │   │   ├── repository.py
-│   │   │   ├── routes.py
-│   │   │   ├── schemas.py
-│   │   │   └── services.py
-│   │   └── users/
-│   │       ├── models.py
-│   │       ├── repository.py
-│   │       ├── routes.py
-│   │       ├── schemas.py
-│   │       └── services.py
-│   └── shared/              # Shared logic
-│       └── deps.py
-│
-├── venv/                    # Virtual environment (excluded by .gitignore)
-├── __pycache__/             # Python bytecode cache (auto-generated)
-├── main.py                  # Entry point of FastAPI app
-├── .env                     # Local environment variables
-├── .env.example             # Example of .env
-├── .gitignore               # Git ignore rules
-├── requirements.txt         # Project dependencies
-└── README.md                # Documentation
-
+├── app/
+│   ├── config/              # Environment and settings
+│   ├── infrastructure/      # DB, AI, Auth
+│   ├── modules/
+│   │   ├── chats/           # Chat feature (LLM)
+│   │   └── users/           # Auth and profile
+│   └── shared/              # Dependencies, utils
+├── .env
+├── main.py
+├── requirements.txt
+└── README.md
 ```
 
-## 🔍 API Documentation
+---
 
-### Authentication
+## 🔐 AI-Powered Onboarding Flow
 
-#### Sign Up
-```http
-POST /users/signup
-Content-Type: application/json
+1. User sends first message via `/chats/`
+2. AI responds with:
+   - Personalized greeting
+   - Goal-setting prompt
+   - Language level assessment
+3. Conversation continues with contextual memory
 
-{
-  "username": "testuser",
-  "email": "test@example.com",
-  "password": "securepassword"
-}
+---
+
+## 🔍 OpenAPI Docs
+
+- Swagger: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
+
+---
+
+## 🐳 Docker (Optional)
+
+```bash
+docker build -t japi-backend .
+docker run -p 8000:8000 --env-file .env japi-backend
 ```
 
-#### Login
-```http
-POST /users/login
-Content-Type: application/json
-
-{
-  "email": "test@example.com",
-  "password": "securepassword"
-}
-```
-
-### Chat
-
-#### Send Message
-```http
-POST /chats/
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "content": "Hello, I want to improve my English speaking skills"
-}
-```
-
-#### Get Chat History
-```http
-GET /chats/
-Authorization: Bearer <token>
-```
-
-#### Clear Chat History
-```http
-DELETE /chats/
-Authorization: Bearer <token>
-```
+---
 
 <div align="center">
-  Made with ❤️ by aman
+  Built with ❤️ by Japi Team
 </div>
